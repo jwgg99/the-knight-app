@@ -1,10 +1,12 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:sqflite/sqflite.dart';
-import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
   static Database? _database;
+
+  // Almacenamiento en memoria para web
+  static final List<Map<String, dynamic>> _usuariosMemoria = [];
 
   static Future<Database> get database async {
     if (_database != null) return _database!;
@@ -14,26 +16,16 @@ class DatabaseHelper {
 
   static Future<Database> _initDB() async {
     if (kIsWeb) {
-      // Usamos IndexedDB en web
-      final factory = databaseFactoryFfiWeb;
-      return await factory.openDatabase(
-        'the_knight.db',
-        options: OpenDatabaseOptions(
-          version: 1,
-          onCreate: (db, version) async {
-            await db.execute('''
-              CREATE TABLE usuarios (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                nombre TEXT NOT NULL,
-                correo TEXT NOT NULL UNIQUE,
-                contrasena TEXT NOT NULL
-              )
-            ''');
-          },
-        ),
+      // No usamos SQLite en web, retornamos una base de datos ficticia
+      // para no romper la interfaz. Los métodos usarán _usuariosMemoria.
+      // Abrimos una base de datos temporal solo para cumplir con el tipo.
+      // (No se usará realmente)
+      return await openDatabase(
+        inMemoryDatabasePath,
+        version: 1,
+        onCreate: (db, version) async {},
       );
     } else {
-      // Para Android/iOS
       final path = join(await getDatabasesPath(), 'the_knight.db');
       return await openDatabase(
         path,
@@ -52,40 +44,74 @@ class DatabaseHelper {
     }
   }
 
-  // Registrar usuario
   static Future<int> registrarUsuario(
       String nombre, String correo, String contrasena) async {
-    final db = await database;
-    return await db.insert('usuarios', {
-      'nombre': nombre,
-      'correo': correo,
-      'contrasena': contrasena,
-    });
+    if (kIsWeb) {
+      // Verificar duplicado
+      if (_usuariosMemoria.any((u) => u['correo'] == correo)) {
+        throw Exception('El correo ya está registrado');
+      }
+      _usuariosMemoria.add({
+        'id': _usuariosMemoria.length + 1,
+        'nombre': nombre,
+        'correo': correo,
+        'contrasena': contrasena,
+      });
+      return 1; // simular inserción exitosa
+    } else {
+      final db = await database;
+      return await db.insert('usuarios', {
+        'nombre': nombre,
+        'correo': correo,
+        'contrasena': contrasena,
+      });
+    }
   }
 
-  // Iniciar sesión
   static Future<Map<String, dynamic>?> iniciarSesion(
       String correo, String contrasena) async {
-    final db = await database;
-    final result = await db.query('usuarios',
-        where: 'correo = ? AND contrasena = ?', whereArgs: [correo, contrasena]);
-    if (result.isNotEmpty) return result.first;
-    return null;
+    if (kIsWeb) {
+      for (final usuario in _usuariosMemoria) {
+        if (usuario['correo'] == correo &&
+            usuario['contrasena'] == contrasena) {
+          return usuario;
+        }
+      }
+      return null;
+    } else {
+      final db = await database;
+      final result = await db.query('usuarios',
+          where: 'correo = ? AND contrasena = ?',
+          whereArgs: [correo, contrasena]);
+      if (result.isNotEmpty) return result.first;
+      return null;
+    }
   }
 
-  // Verificar si el correo ya está registrado
   static Future<bool> correoExiste(String correo) async {
-    final db = await database;
-    final result =
-    await db.query('usuarios', where: 'correo = ?', whereArgs: [correo]);
-    return result.isNotEmpty;
+    if (kIsWeb) {
+      return _usuariosMemoria.any((u) => u['correo'] == correo);
+    } else {
+      final db = await database;
+      final result = await db
+          .query('usuarios', where: 'correo = ?', whereArgs: [correo]);
+      return result.isNotEmpty;
+    }
   }
 
-  // Actualizar contraseña
   static Future<int> actualizarContrasena(
       String correo, String nuevaContrasena) async {
-    final db = await database;
-    return await db.update('usuarios', {'contrasena': nuevaContrasena},
-        where: 'correo = ?', whereArgs: [correo]);
+    if (kIsWeb) {
+      final index = _usuariosMemoria.indexWhere((u) => u['correo'] == correo);
+      if (index >= 0) {
+        _usuariosMemoria[index]['contrasena'] = nuevaContrasena;
+        return 1;
+      }
+      return 0;
+    } else {
+      final db = await database;
+      return await db.update('usuarios', {'contrasena': nuevaContrasena},
+          where: 'correo = ?', whereArgs: [correo]);
+    }
   }
 }

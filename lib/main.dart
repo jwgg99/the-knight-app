@@ -8,6 +8,9 @@ import 'views/catalogo_screen.dart';
 import 'views/carrito_screen.dart';
 import 'views/registro_screen.dart';
 import 'views/recuperar_screen.dart';
+import 'views/checkout_screen.dart';
+import 'views/seguimiento_screen.dart';
+import 'views/contacto_screen.dart';
 
 void main() {
   runApp(const TheKnightApp());
@@ -41,6 +44,9 @@ class TheKnightApp extends StatelessWidget {
           '/': (context) => const HomeScreen(),
           '/catalogo': (context) => const CatalogoScreen(),
           '/carrito': (context) => const CarritoScreen(),
+          '/checkout': (context) => const CheckoutScreen(),
+          '/seguimiento': (context) => const SeguimientoScreen(),
+          '/contacto': (context) => const ContactoScreen(),
         },
       ),
     );

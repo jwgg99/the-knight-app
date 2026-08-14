@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../controllers/carrito_controller.dart';
+import '../views/checkout_screen.dart';
 
 class CarritoScreen extends StatelessWidget {
   const CarritoScreen({super.key});
@@ -173,13 +174,15 @@ class CarritoScreen extends StatelessWidget {
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () {
-                      // Acción de pago (por ahora solo muestra mensaje)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content:
-                            Text('Procesando pago... (simulado)')),
-                      );
+                    onPressed: carrito.items.isEmpty
+                       ? null
+                       : () {
+                         Navigator.push(
+                           context,
+                           MaterialPageRoute(
+                            builder: (context) => const CheckoutScreen(),
+                         ),
+                       );
                     },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF1A237E),

@@ -5,7 +5,7 @@ const List<Producto> productosDestacados = [
   Producto(
     id: '6',
     nombre: 'Botines Chelsea',
-    precio: 200.000,
+    precio: 200000.00,
     imagenUrl: 'assets/zapatos_negros.png',
     categoria: 'Hombre',
     tallas: ['39', '40', '41', '42', '43'],
@@ -15,7 +15,7 @@ const List<Producto> productosDestacados = [
   Producto(
     id: '7',
     nombre: 'Camisa tipo Polo',
-    precio: 120.000,
+    precio: 100000.00,
     imagenUrl: 'assets/camisa_tipo_polo.png',
     categoria: 'Hombre',
     tallas: ['S', 'M', 'L', 'XL'],

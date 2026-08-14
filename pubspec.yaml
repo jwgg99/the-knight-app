@@ -35,7 +35,7 @@ dependencies:
   sqflite_common_ffi: ^2.3.0 # SQLite para escritorio (Windows, macOS, Linux)
   sqflite_common_ffi_web: ^0.4.0 # SQLite para web (IndexedDB)
   path: ^1.8.3
-  url_launcher: ^6.2.0       # Si lo usas para WhatsApp (opcional)
+  url_launcher: ^6.2.0       # WhatsApp
 
 dev_dependencies:
   flutter_test:

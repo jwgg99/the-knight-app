@@ -8,8 +8,7 @@ class AuthController extends ChangeNotifier {
   Map<String, dynamic>? get usuario => _usuario;
   bool get autenticado => _autenticado;
 
-  Future<String> registrar(
-      String nombre, String correo, String contrasena) async {
+  Future<String> registrar(String nombre, String correo, String contrasena) async {
     final existe = await DatabaseHelper.correoExiste(correo);
     if (existe) return 'El correo ya está registrado';
     await DatabaseHelper.registrarUsuario(nombre, correo, contrasena);

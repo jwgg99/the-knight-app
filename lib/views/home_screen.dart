@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../controllers/carrito_controller.dart';
 import '../models/producto.dart';
 import '../models/productos_mock.dart';
 import 'detalle_screen.dart';
 
-\
+
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -23,6 +21,20 @@ class HomeScreen extends StatelessWidget {
             icon: const Icon(Icons.storefront),
             onPressed: () {
               Navigator.pushNamed(context, '/catalogo');
+            },
+          ),
+          // Botón para seguimiento de pedido
+          IconButton(
+            icon: const Icon(Icons.local_shipping),
+            onPressed: () {
+              Navigator.pushNamed(context, '/seguimiento');
+            },
+          ),
+          // Botón para contacto y soporte
+          IconButton(
+            icon: const Icon(Icons.help_outline),
+            onPressed: () {
+              Navigator.pushNamed(context, '/contacto');
             },
           ),
           // Botón para ir al carrito

@@ -12,21 +12,37 @@ class CatalogoScreen extends StatefulWidget {
 
 class _CatalogoScreenState extends State<CatalogoScreen> {
   String _categoriaSeleccionada = 'Todas';
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    // Obtener todas las categorías disponibles
     final categorias = [
       'Todas',
       ...productosDestacados.map((p) => p.categoria).toSet().toList(),
     ];
 
-    // Filtrar productos según la categoría seleccionada
-    final productosFiltrados = _categoriaSeleccionada == 'Todas'
+    // Filtrar por categoría
+    List<Producto> productosFiltrados = _categoriaSeleccionada == 'Todas'
         ? productosDestacados
         : productosDestacados
         .where((p) => p.categoria == _categoriaSeleccionada)
         .toList();
+
+    // Aplicar búsqueda por nombre o palabra clave
+    if (_query.trim().isNotEmpty) {
+      productosFiltrados = productosFiltrados
+          .where((p) =>
+      p.nombre.toLowerCase().contains(_query.toLowerCase()) ||
+          p.descripcion.toLowerCase().contains(_query.toLowerCase()))
+          .toList();
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -34,7 +50,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
         backgroundColor: const Color(0xFF1A237E),
         foregroundColor: Colors.white,
         actions: [
-          // Selector de categoría (filtro)
           Padding(
             padding: const EdgeInsets.only(right: 8),
             child: DropdownButtonHideUnderline(
@@ -57,7 +72,6 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
               ),
             ),
           ),
-          // Icono de carrito
           IconButton(
             icon: const Icon(Icons.shopping_cart),
             onPressed: () {
@@ -66,100 +80,128 @@ class _CatalogoScreenState extends State<CatalogoScreen> {
           ),
         ],
       ),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          // Definir número de columnas según el ancho de la pantalla
-          int crossAxisCount;
-          if (constraints.maxWidth >= 900) {
-            crossAxisCount = 4;      // Pantallas grandes (web/escritorio)
-          } else if (constraints.maxWidth >= 600) {
-            crossAxisCount = 3;      // Tablets o web medianas
-          } else {
-            crossAxisCount = 2;      // Móviles
-          }
-
-          return GridView.builder(
-            padding: const EdgeInsets.all(16),
-            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: crossAxisCount,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 0.65,   // Misma proporción que Home/Carrito
-            ),
-            itemCount: productosFiltrados.length,
-            itemBuilder: (context, index) {
-              final producto = productosFiltrados[index];
-              return Card(
-                elevation: 2,
-                shape: RoundedRectangleBorder(
+      body: Column(
+        children: [
+          // Campo de búsqueda
+          Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: TextField(
+              controller: _searchCtrl,
+              onChanged: (value) {
+                setState(() {
+                  _query = value;
+                });
+              },
+              decoration: InputDecoration(
+                hintText: 'Buscar producto...',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: InkWell(
-                  onTap: () {
-                    // Navegar a detalle (igual que en Home)
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DetalleScreen(producto: producto),
+              ),
+            ),
+          ),
+          Expanded(
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                int crossAxisCount;
+                if (constraints.maxWidth >= 900) {
+                  crossAxisCount = 4;
+                } else if (constraints.maxWidth >= 600) {
+                  crossAxisCount = 3;
+                } else {
+                  crossAxisCount = 2;
+                }
+
+                if (productosFiltrados.isEmpty) {
+                  return const Center(
+                    child: Text('No se encontraron productos'),
+                  );
+                }
+
+                return GridView.builder(
+                  padding: const EdgeInsets.all(16),
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 0.65,
+                  ),
+                  itemCount: productosFiltrados.length,
+                  itemBuilder: (context, index) {
+                    final producto = productosFiltrados[index];
+                    return Card(
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Imagen superior
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.vertical(
-                              top: Radius.circular(12)),
-                          child: Image.asset(
-                            producto.imagenUrl,
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                color: Colors.grey[300],
-                                child: const Center(
-                                  child: Icon(Icons.image,
-                                      size: 40, color: Colors.grey),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ),
-                      // Información
-                      Padding(
-                        padding: const EdgeInsets.all(8.0),
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  DetalleScreen(producto: producto),
+                            ),
+                          );
+                        },
+                        borderRadius: BorderRadius.circular(12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              producto.nombre,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+                            Expanded(
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                    top: Radius.circular(12)),
+                                child: Image.asset(
+                                  producto.imagenUrl,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      color: Colors.grey[300],
+                                      child: const Center(
+                                        child: Icon(Icons.image,
+                                            size: 40, color: Colors.grey),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
                             ),
-                            const SizedBox(height: 4),
-                            Text(
-                              '\$${producto.precio.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                color: Color(0xFF1A237E),
-                                fontWeight: FontWeight.bold,
+                            Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    producto.nombre,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '\$${producto.precio.toStringAsFixed(2)}',
+                                    style: const TextStyle(
+                                      color: Color(0xFF1A237E),
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
                       ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          );
-        },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
