@@ -6,6 +6,7 @@ class Producto {
   final String categoria;
   final List<String> tallas;
   final String color;
+  final String descripcion;
 
   const Producto({
     required this.id,
@@ -15,5 +16,6 @@ class Producto {
     required this.categoria,
     required this.tallas,
     required this.color,
+    required this.descripcion,
   });
 }

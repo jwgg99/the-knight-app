@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
@@ -11,21 +13,43 @@ class DatabaseHelper {
   }
 
   static Future<Database> _initDB() async {
-    final path = join(await getDatabasesPath(), 'the_knight.db');
-    return await openDatabase(
-      path,
-      version: 1,
-      onCreate: (db, version) async {
-        await db.execute('''
-          CREATE TABLE usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            nombre TEXT NOT NULL,
-            correo TEXT NOT NULL UNIQUE,
-            contrasena TEXT NOT NULL
-          )
-        ''');
-      },
-    );
+    if (kIsWeb) {
+      // Usamos IndexedDB en web
+      final factory = databaseFactoryFfiWeb;
+      return await factory.openDatabase(
+        'the_knight.db',
+        options: OpenDatabaseOptions(
+          version: 1,
+          onCreate: (db, version) async {
+            await db.execute('''
+              CREATE TABLE usuarios (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                nombre TEXT NOT NULL,
+                correo TEXT NOT NULL UNIQUE,
+                contrasena TEXT NOT NULL
+              )
+            ''');
+          },
+        ),
+      );
+    } else {
+      // Para Android/iOS
+      final path = join(await getDatabasesPath(), 'the_knight.db');
+      return await openDatabase(
+        path,
+        version: 1,
+        onCreate: (db, version) async {
+          await db.execute('''
+            CREATE TABLE usuarios (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              nombre TEXT NOT NULL,
+              correo TEXT NOT NULL UNIQUE,
+              contrasena TEXT NOT NULL
+            )
+          ''');
+        },
+      );
+    }
   }
 
   // Registrar usuario

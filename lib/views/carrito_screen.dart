@@ -22,81 +22,127 @@ class CarritoScreen extends StatelessWidget {
           : Column(
         children: [
           Expanded(
-            child: ListView.builder(
+            child: GridView.builder(
               padding: const EdgeInsets.all(16),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,              // Dos columnas, como en Home
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 0.65,         // Relación similar al Home
+              ),
               itemCount: carrito.items.length,
               itemBuilder: (context, index) {
                 final item = carrito.items[index];
                 return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Row(
-                      children: [
-                        // Imagen placeholder
-                        Container(
-                          width: 60,
-                          height: 60,
-                          decoration: BoxDecoration(
-                            color: Colors.grey[300],
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(Icons.image,
-                              color: Colors.grey),
-                        ),
-                        const SizedBox(width: 16),
-                        // Info del producto
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(item.producto.nombre,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold)),
-                              const SizedBox(height: 4),
-                              Text(
-                                  'Talla: ${item.tallaSeleccionada} | \$${item.producto.precio.toStringAsFixed(2)}'),
-                            ],
+                  elevation: 2,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Imagen superior (como en Home)
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(12)),
+                          child: Image.asset(
+                            item.producto.imagenUrl,
+                            fit: BoxFit.cover,
+                            width: double.infinity,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Container(
+                                color: Colors.grey[300],
+                                child: const Center(
+                                  child: Icon(Icons.image,
+                                      size: 40, color: Colors.grey),
+                                ),
+                              );
+                            },
                           ),
                         ),
-                        // Cantidad y botones
-                        Row(
+                      ),
+                      // Información y controles
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            IconButton(
-                              icon: const Icon(Icons.remove_circle_outline),
-                              onPressed: () {
-                                carrito.disminuirCantidad(
-                                    item.producto,
-                                    talla: item.tallaSeleccionada);
-                              },
+                            // Nombre del producto
+                            Text(
+                              item.producto.nombre,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            Text('${item.cantidad}',
-                                style: const TextStyle(fontSize: 16)),
-                            IconButton(
-                              icon: const Icon(Icons.add_circle_outline),
-                              onPressed: () {
-                                carrito.agregarProducto(item.producto,
-                                    talla: item.tallaSeleccionada);
-                              },
+                            const SizedBox(height: 4),
+                            // Talla y precio
+                            Text(
+                              'Talla: ${item.tallaSeleccionada}',
+                              style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600]),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '\$${(item.producto.precio * item.cantidad).toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                color: Color(0xFF1A237E),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            // Controles de cantidad y eliminar
+                            Row(
+                              mainAxisAlignment:
+                              MainAxisAlignment.spaceBetween,
+                              children: [
+                                // Disminuir
+                                IconButton(
+                                  icon: const Icon(
+                                      Icons.remove_circle_outline),
+                                  onPressed: () {
+                                    carrito.disminuirCantidad(
+                                        item.producto,
+                                        talla: item.tallaSeleccionada);
+                                  },
+                                ),
+                                Text('${item.cantidad}',
+                                    style:
+                                    const TextStyle(fontSize: 16)),
+                                // Aumentar
+                                IconButton(
+                                  icon: const Icon(
+                                      Icons.add_circle_outline),
+                                  onPressed: () {
+                                    carrito.agregarProducto(
+                                        item.producto,
+                                        talla: item.tallaSeleccionada);
+                                  },
+                                ),
+                                // Eliminar
+                                IconButton(
+                                  icon: const Icon(Icons.delete_outline,
+                                      color: Colors.red),
+                                  onPressed: () {
+                                    carrito.eliminarProducto(
+                                        item.producto,
+                                        talla: item.tallaSeleccionada);
+                                  },
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete_outline,
-                              color: Colors.red),
-                          onPressed: () {
-                            carrito.eliminarProducto(item.producto,
-                                talla: item.tallaSeleccionada);
-                          },
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 );
               },
             ),
           ),
-          // Resumen del pedido
+          // Resumen del pedido (igual que antes)
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),

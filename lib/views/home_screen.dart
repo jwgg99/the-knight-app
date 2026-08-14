@@ -3,7 +3,9 @@ import 'package:provider/provider.dart';
 import '../controllers/carrito_controller.dart';
 import '../models/producto.dart';
 import '../models/productos_mock.dart';
+import 'detalle_screen.dart';
 
+\
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -91,13 +93,10 @@ class HomeScreen extends StatelessWidget {
                   ),
                   child: InkWell(
                     onTap: () {
-                      // Añadir al carrito al tocar
-                      final carrito = Provider.of<CarritoController>(context, listen: false);
-                      carrito.agregarProducto(producto);
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text('${producto.nombre} añadido al carrito'),
-                          duration: const Duration(seconds: 1),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DetalleScreen(producto: producto),
                         ),
                       );
                     },
@@ -106,15 +105,23 @@ class HomeScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey[300],
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(12),
-                              ),
-                            ),
-                            child: const Center(
-                              child: Icon(Icons.image, size: 50, color: Colors.grey),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(12)),
+                            child: Image.asset(
+                              producto.imagenUrl,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              errorBuilder: (context, error, stackTrace) {
+                                // Si no existe la imagen, muestra un placeholder gris
+                                return Container(
+                                  color: Colors.grey[300],
+                                  child: const Center(
+                                    child: Icon(Icons.image,
+                                        size: 50, color: Colors.grey),
+                                  ),
+                                );
+                              },
                             ),
                           ),
                         ),
