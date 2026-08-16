@@ -26,10 +26,10 @@ class CarritoScreen extends StatelessWidget {
             child: GridView.builder(
               padding: const EdgeInsets.all(16),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,              // Dos columnas, como en Home
+                crossAxisCount: 2,
                 mainAxisSpacing: 16,
                 crossAxisSpacing: 16,
-                childAspectRatio: 0.65,         // Relación similar al Home
+                childAspectRatio: 0.65,
               ),
               itemCount: carrito.items.length,
               itemBuilder: (context, index) {
@@ -143,7 +143,7 @@ class CarritoScreen extends StatelessWidget {
               },
             ),
           ),
-          // Resumen del pedido (igual que antes)
+          // Resumen del pedido
           Container(
             width: double.infinity,
             padding: const EdgeInsets.all(16),

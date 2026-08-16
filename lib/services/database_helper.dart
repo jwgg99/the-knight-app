@@ -16,10 +16,7 @@ class DatabaseHelper {
 
   static Future<Database> _initDB() async {
     if (kIsWeb) {
-      // No usamos SQLite en web, retornamos una base de datos ficticia
-      // para no romper la interfaz. Los métodos usarán _usuariosMemoria.
-      // Abrimos una base de datos temporal solo para cumplir con el tipo.
-      // (No se usará realmente)
+
       return await openDatabase(
         inMemoryDatabasePath,
         version: 1,

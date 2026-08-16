@@ -16,13 +16,13 @@ class ItemCarrito {
   double get subtotal => producto.precio * cantidad;
 }
 
-// El controlador que maneja el estado del carrito
+//Controlador que maneja el estado del carrito
 class CarritoController extends ChangeNotifier {
   final List<ItemCarrito> _items = [];
 
   List<ItemCarrito> get items => List.unmodifiable(_items);
 
-  // Total de artículos (suma de cantidades)
+  // Total de artículos
   int get cantidadTotal =>
       _items.fold(0, (sum, item) => sum + item.cantidad);
 
@@ -30,8 +30,8 @@ class CarritoController extends ChangeNotifier {
   double get subtotal =>
       _items.fold(0.0, (sum, item) => sum + item.subtotal);
 
-  // Impuestos (ejemplo 15%)
-  double get impuestos => subtotal * 0.15;
+  // Impuestos 19%
+  double get impuestos => subtotal * 0.19;
 
   // Total a pagar
   double get total => subtotal + impuestos;
@@ -44,7 +44,7 @@ class CarritoController extends ChangeNotifier {
     );
 
     if (index >= 0) {
-      // Si ya existe, aumentamos la cantidad
+      // Si ya existe
       _items[index].cantidad++;
     } else {
       // Si no, lo añadimos nuevo
@@ -53,7 +53,7 @@ class CarritoController extends ChangeNotifier {
         tallaSeleccionada: talla,
       ));
     }
-    notifyListeners(); // ¡Avisa a la UI que algo cambió!
+    notifyListeners(); //
   }
 
   // Quitar una unidad o eliminar si llega a 0

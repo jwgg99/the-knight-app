@@ -125,7 +125,6 @@ class HomeScreen extends StatelessWidget {
                               fit: BoxFit.cover,
                               width: double.infinity,
                               errorBuilder: (context, error, stackTrace) {
-                                // Si no existe la imagen, muestra un placeholder gris
                                 return Container(
                                   color: Colors.grey[300],
                                   child: const Center(

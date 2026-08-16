@@ -76,13 +76,13 @@ class _DetalleScreenState extends State<DetalleScreen> {
     );
   }
 
-  // Imagen más compacta y centrada
+
   Widget _buildImagen(Producto producto) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 300),
         child: Container(
-          height: 180, // Altura reducida
+          height: 180,
           width: double.infinity,
           decoration: BoxDecoration(
             color: Colors.grey[200],

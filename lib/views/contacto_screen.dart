@@ -11,7 +11,7 @@ class ContactoScreen extends StatelessWidget {
     if (await canLaunchUrl(Uri.parse(url))) {
       await launchUrl(Uri.parse(url), mode: LaunchMode.externalApplication);
     } else {
-      // Manejar error
+
     }
   }
 
